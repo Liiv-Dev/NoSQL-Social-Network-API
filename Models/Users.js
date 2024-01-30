@@ -1,36 +1,41 @@
 const { Schema, model } = require('mongoose');
 
-// Schema to create a new user
+// Schema to create user Model
 const userSchema = new Schema({
 
     username: {
         type: String,
-        unnqiue: true,
+        unique: true,
         required: true,
-        trim: true
+        trim: true,
+        min: 4
     },
 
     email: {
         type: String,
         required: true,
         unique: true,
-        validate: { $regex: /@mongodb\.com$/ },
+        validate: {
+            validator: function(v) {
+                return /^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})?$/.test(v);
+            }
+        }
     },
 
     thoughts: [{
-        type: Schema.Types.objectId,
+        type: Schema.Types.ObjectId,
         ref: 'Thought'
     }],
 
     friends: [{
-        type: Schema.Types.objectId,
+        type: Schema.Types.ObjectId,
         ref: 'User'
-    }],
-
+    }]
+}, {
     toJSON: {
-        virtuals: true,
-        },
-        id: false,
+        virtuals: true
+    },
+    id: false
     }
 );
 
@@ -39,6 +44,7 @@ userSchema.virtual('friendCount').get(function() {
     return this.friends.length;
 })
 
-const User = model('user, userSchema');
+// Initialize our User model
+const User = model('user', userSchema);
 
 module.exports = User;
