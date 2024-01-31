@@ -2,7 +2,7 @@ const Users  = require('../models/Users');
 
 module.exports = {
     // get all users
-    async getUsers (req, res) {
+    getUsers: async (req, res) => {
         try {
             const users = await Users.find();
             res.json(users);
@@ -11,24 +11,21 @@ module.exports = {
         }
     },
 
-    // find single user by id
-    async getSingleUser (req, res) {
+     // find single user by id
+    getSingleUser: async (req, res) => {
         try {
-            const user = await Users.findOne({ _id: req.params.userId })
-        .select('-__v'); // exclude the __v field
-
-        if(!user) {
-            return res.status(404).json({ message: 'No user with that id!..'});
-        }
-
-        res.json(user);
+            const user = await Users.findById(req.params.id);
+            if (!user) {
+                return res.status(404).json({ message: 'User not found' });
+            }
+            res.json(user);
         } catch (err) {
-            res.status(500).json(err);
+            res.status(500).json({ message: err.message });
         }
     },
 
     // Create a new User
-    async createUser (req, res) {
+    createUser: async (req, res) => {
         try {
             const userData = await Users.create(req.body);
             res.json(userData)
@@ -38,32 +35,34 @@ module.exports = {
     },
 
     // Update a User by id
-    async updateUser (req, res) {
+    updateUser: async (req, res) => {
         try {
-            const userData = await Users.findOneAndUpdate(
-                { _id: req.params.userId },
-                req.body,
-                { new: true }
-            );
-            if(!userData) {
-                return res.status(404).json({ message: 'No user with that id!..'});
-            }
-            res.json(userData);
+            const user = await Users.findOneAndUpdate(
+                { _id: req.params.id }, // filter
+                req.body, // update data
+                { new: true } // options
+            ).select('-__v');
+
+        if (!user) {
+            return res.status(404).json({ message: 'No user with that ID' });
+        }
+
+            res.json(user);
         } catch (err) {
             res.status(500).json(err);
         }
     },
 
     // Delete a User by id
-    async deleteUser (res, req) {
+    deleteUser: async (req, res) => {
         try {
-            const userData = await Users.findOneAndDelete({ _id: req.params.userId });
-
-        if (!userData) {
-            return res.status(404).json({ message: 'No user with that id!..'});
-        } 
+            const user = await Users.findByIdAndDelete(req.params.id);
+            if (!user) {
+                return res.status(404).json({ message: 'User not found' });
+            }
+            res.json({ message: 'User deleted' });
         } catch (err) {
-            res.status(500).json(err);
+            res.status(500).json({ message: 'Failed to delete' });
         }
     }
 };
