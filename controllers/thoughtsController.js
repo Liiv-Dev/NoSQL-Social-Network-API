@@ -79,4 +79,40 @@ module.exports = {
             res.status(500).json({ message: 'Failed to delete' });
         }
     },
+
+    // Add Reaction to Thought
+    addReaction: async (req,res) => {
+        try {
+            const thought = await Thought.findOneAndUpdate(
+                { _id: req.params.id },
+                { $push: { reactions: req.body } },
+                { new: true }
+            );
+            if (!thought) {
+                return res.status(404).json({ message: 'No thought with that ID' });
+            }
+            res.json(thought);
+        } catch (err) {
+            res.status(500).json(err);
+        }
+    },
+
+    // Delete Reaction from Thought
+    deleteReaction: async (req,res) => {
+        try {
+            const thought = await Thought.findOneAndUpdate(
+                {_id: req.params.id},
+                { $pull: { reactions: { reactionId: req.params.reactionId } } },
+                { new: true }
+            )
+
+            if(!thought) {
+                return res.status(404).json({ message: 'No thought with that ID'});
+            }
+
+            res.json(thought)
+        } catch (err) {
+            res.status(500).json(err);
+        }
+    }
 }
