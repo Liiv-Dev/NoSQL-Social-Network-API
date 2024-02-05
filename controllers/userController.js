@@ -1,5 +1,5 @@
 const Users  = require('../models/Users');
-const Thoughts = require('../models/Thoughts');
+const Thoughts = require('../models/Thoughts')
 
 module.exports = {
     // get all users
@@ -63,7 +63,7 @@ module.exports = {
             }
 
         // Delete the user's thoughts
-        await Thought.deleteMany({ _id: { $in: user.thoughts } });
+        await Thoughts.deleteMany({ _id: { $in: user.thoughts } });
 
         // Delete the user
         await Users.findByIdAndDelete(req.params.id);
